@@ -7,4 +7,3 @@ build
 .gitignore
 .git
 .vscode
-config.yaml

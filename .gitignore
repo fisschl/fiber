@@ -24,4 +24,4 @@ go.work
 .vscode
 
 temp
-config.yaml
+.env
