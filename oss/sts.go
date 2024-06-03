@@ -29,7 +29,11 @@ func init() {
 }
 
 func stsHandler(ctx *fiber.Ctx) error {
-	user := utils.UserId(ctx)
+	token := utils.AuthToken(ctx)
+	if token == "" {
+		return ctx.SendStatus(401)
+	}
+	user := utils.Rdb.HGet(ctx.Context(), token, "user").String()
 	if user == "" {
 		return ctx.SendStatus(401)
 	}

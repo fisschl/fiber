@@ -13,12 +13,3 @@ func AuthToken(ctx *fiber.Ctx) string {
 	}
 	return ctx.Query("token")
 }
-
-func UserId(ctx *fiber.Ctx) string {
-	token := AuthToken(ctx)
-	if token == "" {
-		return ""
-	}
-	user := Rdb.HGet(ctx.Context(), token, "user").String()
-	return user
-}
