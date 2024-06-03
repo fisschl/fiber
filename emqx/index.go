@@ -24,13 +24,16 @@ func authHandler(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	user := utils.Rdb.HGet(ctx.Context(), body.Password, "user").String()
-	if user != "" && user == body.Username {
-		return ctx.JSON(fiber.Map{
-			"result": "allow",
-		})
+	user, err := utils.Rdb.HGet(ctx.Context(), body.Password, "user").Result()
+	if err != nil || user == "" {
+		return ctx.SendStatus(fiber.StatusForbidden)
 	}
-	return ctx.SendStatus(fiber.StatusForbidden)
+	if user != body.Username {
+		return ctx.SendStatus(fiber.StatusForbidden)
+	}
+	return ctx.JSON(fiber.Map{
+		"result": "allow",
+	})
 }
 
 type authzBody struct {
@@ -58,12 +61,12 @@ func authzHandler(ctx *fiber.Ctx) error {
 			"result": "allow",
 		})
 	}
-	if body.Username == body.Topic {
-		return ctx.JSON(fiber.Map{
-			"result": "allow",
-		})
+	if body.Username != body.Topic {
+		return ctx.SendStatus(fiber.StatusForbidden)
 	}
-	return ctx.SendStatus(fiber.StatusForbidden)
+	return ctx.JSON(fiber.Map{
+		"result": "allow",
+	})
 }
 
 func RegisterRouter(router fiber.Router) {

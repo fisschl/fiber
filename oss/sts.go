@@ -33,8 +33,8 @@ func stsHandler(ctx *fiber.Ctx) error {
 	if token == "" {
 		return ctx.SendStatus(401)
 	}
-	user := utils.Rdb.HGet(ctx.Context(), token, "user").String()
-	if user == "" {
+	user, err := utils.Rdb.HGet(ctx.Context(), token, "user").Result()
+	if err != nil {
 		return ctx.SendStatus(401)
 	}
 	Action := []string{"oss:GetObject", "oss:PutObject"}
