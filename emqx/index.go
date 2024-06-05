@@ -3,6 +3,8 @@ package emqx
 import (
 	"github.com/fisschl/fiber/utils"
 	"github.com/gofiber/fiber/v2"
+	"os"
+	"strings"
 )
 
 type authBody struct {
@@ -10,6 +12,10 @@ type authBody struct {
 	Username string `json:"username"`
 	// 用户的 Token
 	Password string `json:"password"`
+}
+
+var allow = fiber.Map{
+	"result": "allow",
 }
 
 // http://fiber:648/emqx/auth
@@ -24,16 +30,17 @@ func authHandler(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	user, err := utils.Rdb.HGet(ctx.Context(), body.Password, "user").Result()
-	if err != nil || user == "" {
-		return ctx.SendStatus(fiber.StatusForbidden)
+	if body.Username == "default" && body.Password == os.Getenv("DEFAULT_PASSWORD") {
+		return ctx.JSON(allow)
 	}
-	if user != body.Username {
-		return ctx.SendStatus(fiber.StatusForbidden)
+	if body.Username == "public" && body.Password == "public" {
+		return ctx.JSON(allow)
 	}
-	return ctx.JSON(fiber.Map{
-		"result": "allow",
-	})
+	user, _ := utils.Rdb.HGet(ctx.Context(), body.Password, "user").Result()
+	if user != "" && user == body.Username {
+		return ctx.JSON(allow)
+	}
+	return ctx.SendStatus(fiber.StatusForbidden)
 }
 
 type authzBody struct {
@@ -57,16 +64,21 @@ func authzHandler(ctx *fiber.Ctx) error {
 		return err
 	}
 	if body.Action == "publish" {
-		return ctx.JSON(fiber.Map{
-			"result": "allow",
-		})
+		return ctx.JSON(allow)
 	}
-	if body.Username != body.Topic {
+	if body.Username == "default" {
+		return ctx.JSON(allow)
+	}
+	if strings.HasPrefix(body.Topic, "public") && !strings.Contains(body.Topic, "#") && !strings.Contains(body.Topic, "+") {
+		return ctx.JSON(allow)
+	}
+	if body.Username == "public" {
 		return ctx.SendStatus(fiber.StatusForbidden)
 	}
-	return ctx.JSON(fiber.Map{
-		"result": "allow",
-	})
+	if strings.HasPrefix(body.Topic, body.Username) {
+		return ctx.JSON(allow)
+	}
+	return ctx.SendStatus(fiber.StatusForbidden)
 }
 
 func RegisterRouter(router fiber.Router) {
