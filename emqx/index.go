@@ -18,6 +18,10 @@ var allow = fiber.Map{
 	"result": "allow",
 }
 
+var deny = fiber.Map{
+	"result": "deny",
+}
+
 // http://fiber:648/emqx/auth
 //
 //	{
@@ -40,7 +44,7 @@ func authHandler(ctx *fiber.Ctx) error {
 	if user != "" && user == body.Username {
 		return ctx.JSON(allow)
 	}
-	return ctx.SendStatus(fiber.StatusForbidden)
+	return ctx.JSON(deny)
 }
 
 type authzBody struct {
@@ -73,12 +77,12 @@ func authzHandler(ctx *fiber.Ctx) error {
 		return ctx.JSON(allow)
 	}
 	if body.Username == "public" {
-		return ctx.SendStatus(fiber.StatusForbidden)
+		return ctx.JSON(deny)
 	}
 	if strings.HasPrefix(body.Topic, body.Username) {
 		return ctx.JSON(allow)
 	}
-	return ctx.SendStatus(fiber.StatusForbidden)
+	return ctx.JSON(deny)
 }
 
 func RegisterRouter(router fiber.Router) {
