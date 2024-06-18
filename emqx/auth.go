@@ -22,13 +22,13 @@ var deny = fiber.Map{
 	"result": "deny",
 }
 
-// http://fiber:648/emqx/auth
+// HandleAuth http://fiber:648/emqx/auth
 //
 //	{
 //	 "password": "${password}",
 //	 "username": "${username}"
 //	}
-func authHandler(ctx *fiber.Ctx) error {
+func HandleAuth(ctx *fiber.Ctx) error {
 	var body authBody
 	err := ctx.BodyParser(&body)
 	if err != nil {
@@ -54,14 +54,14 @@ type authzBody struct {
 	Action   string `json:"action"`
 }
 
-// http://fiber:648/emqx/authz
+// HandleAuthz http://fiber:648/emqx/authz
 //
 //	{
 //	 "username": "${username}",
 //	 "topic": "${topic}",
 //	 "action": "${action}"
 //	}
-func authzHandler(ctx *fiber.Ctx) error {
+func HandleAuthz(ctx *fiber.Ctx) error {
 	var body authzBody
 	err := ctx.BodyParser(&body)
 	if err != nil {
@@ -83,9 +83,4 @@ func authzHandler(ctx *fiber.Ctx) error {
 		return ctx.JSON(allow)
 	}
 	return ctx.JSON(deny)
-}
-
-func RegisterRouter(router fiber.Router) {
-	router.Post("/emqx/auth", authHandler)
-	router.Post("/emqx/authz", authzHandler)
 }
