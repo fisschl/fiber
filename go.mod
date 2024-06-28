@@ -3,7 +3,6 @@ module github.com/fisschl/fiber
 go 1.22.3
 
 require (
-	github.com/btcsuite/btcd/btcutil v1.1.5
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/gookit/ini/v2 v2.2.3
 	github.com/minio/minio-go/v7 v7.0.71
