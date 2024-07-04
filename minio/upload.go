@@ -41,6 +41,7 @@ func privateObjectName(ctx *fiber.Ctx) (string, error) {
 	return objectName, err
 }
 
+// HandleUpload 向私有库中直接上传文件
 func HandleUpload(ctx *fiber.Ctx) error {
 	objectName, err := privateObjectName(ctx)
 	if err != nil {
@@ -49,7 +50,7 @@ func HandleUpload(ctx *fiber.Ctx) error {
 	value, err := Minio.PresignedPutObject(ctx.Context(),
 		"home",
 		objectName,
-		time.Second*24*60*60)
+		time.Hour*24)
 	if err != nil {
 		return err
 	}

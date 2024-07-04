@@ -6,20 +6,23 @@ import (
 	"time"
 )
 
+// HandleSlice 上传一个切片
 func HandleSlice(ctx *fiber.Ctx) error {
 	tag := ctx.Query("slice")
 	info, err := Minio.StatObject(ctx.Context(),
 		"temp",
 		tag,
 		minio.StatObjectOptions{})
-	if err == nil {
+	standard := time.Now().AddDate(0, 0, 7)
+	if err == nil && !info.Expiration.Before(standard) {
+		// 分片在7天内不会过期，返回分片信息
 		return ctx.JSON(info)
 	}
 	// 该分片不存在，获取上传地址
 	value, err := Minio.PresignedPutObject(ctx.Context(),
 		"temp",
 		tag,
-		time.Second*24*60*60)
+		time.Hour*24)
 	if err != nil {
 		return err
 	}
