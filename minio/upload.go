@@ -1,7 +1,6 @@
 package minio
 
 import (
-	"github.com/fisschl/fiber/config"
 	"github.com/fisschl/fiber/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/minio/minio-go/v7"
@@ -15,7 +14,7 @@ var Minio *minio.Client
 
 func init() {
 	option := &minio.Options{
-		Creds:  credentials.NewStaticV4(config.GetEnv("MINIO_ACCESS_KEY_ID"), config.GetEnv("MINIO_ACCESS_KEY_SECRET"), ""),
+		Creds:  credentials.NewStaticV4(utils.GetEnv("MINIO_ACCESS_KEY_ID"), utils.GetEnv("MINIO_ACCESS_KEY_SECRET"), ""),
 		Secure: true,
 	}
 	minioClient, err := minio.New("oss.bronya.world", option)

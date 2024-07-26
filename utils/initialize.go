@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/fisschl/fiber/config"
+	"github.com/gookit/ini/v2/dotenv"
 	"github.com/redis/go-redis/v9"
 	"log"
 )
@@ -9,7 +9,11 @@ import (
 var Rdb *redis.Client
 
 func init() {
-	opts, err := redis.ParseURL(config.GetEnv("REDIS_URL"))
+	err := dotenv.LoadExists("./", ".env")
+	if err != nil {
+		log.Panicln(err)
+	}
+	opts, err := redis.ParseURL(GetEnv("REDIS_URL"))
 	if err != nil {
 		log.Panicln(err)
 	}
